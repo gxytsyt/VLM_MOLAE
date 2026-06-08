@@ -34,7 +34,7 @@ pip install pycocoevalcap
 
 ```
 data/
-├── video_lavin_msrvtt/
+├── vlm_molae_json/
 │   ├── eff_training.json
 │   ├── int_training.json
 │   ├── att_training.json
