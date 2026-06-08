@@ -27,7 +27,7 @@ pip install pycocoevalcap
 | 参数 | 说明 | 下载地址 |
 |------|------|----------|
 | `--llama_model_path` / `--ckpt_dir` | LLaMA base 模型权重 | https://huggingface.co/nyanko7/LLaMA-7B/tree/main |
-| `--data_root` | 数据集 JSON 文件（含 `vlm_molae_json/` 目录下的 `eff_training.json`、`int_training.json`、`att_training.json`、`all_test.json`、`all_test_cap.json`） | <!-- TODO: 填写下载地址 --> |
+| `--data_root` | 数据集 JSON 文件（含 `vlm_molae_json/` 目录下的 `eff_training.json`、`int_training.json`、`att_training.json`、`all_test.json`、`all_test_cap.json`） | https://drive.google.com/file/d/1xveTVORplEX87yIFBeRm0p9Ba7sz3Yjl/view?usp=drive_link |
 | `--video_folder` | CLIP 提取的预处理好 video 特征（pickle 文件） | <!-- TODO: 填写下载地址 --> |
 
 下载后目录结构示例：
