@@ -1,6 +1,6 @@
 # LaVIN-Video: Video Causal Reasoning via Multimodal Adapters
 
-## 环境配置
+## Environment Setup
 
 ```bash
 conda create -n VLM-MOLAE python=3.10 -y
@@ -9,28 +9,27 @@ conda activate VLM-MOLAE
 # PyTorch (CUDA 12.1)
 pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu121
 
-# 核心依赖
 pip install bitsandbytes==0.43.0 fairscale==0.4.13 transformers==4.36.0 sentencepiece
 pip install fire einops timm tensorboard ftfy opencv-python-headless decord omegaconf iopath
 pip install ninja packaging psutil
 
-# 评估指标
+# evaluation
 pip install pycocoevalcap
 ```
 
-> **注意**: numpy 必须 < 2.0，否则 PyTorch 2.1 会报错。
+> **note**: numpy must be < 2.0, otherwise PyTorch 2.1 will raise errors.
 
-## 数据准备
+## Data Preparation
 
-需要下载以下三项：
+The following three resources are required:
 
-| 参数 | 说明 | 下载地址 |
+| Argument | Description | Download |
 |------|------|----------|
-| `--llama_model_path` / `--ckpt_dir` | LLaMA base 模型权重 | https://huggingface.co/nyanko7/LLaMA-7B/tree/main |
-| `--data_root` | 数据集 JSON 文件（含 `vlm_molae_json/` 目录下的 `eff_training.json`、`int_training.json`、`att_training.json`、`all_test.json`、`all_test_cap.json`） | https://drive.google.com/file/d/1xveTVORplEX87yIFBeRm0p9Ba7sz3Yjl/view?usp=drive_link |
-| `--video_folder` | CLIP 提取的预处理好 video 特征（pickle 文件） | https://drive.google.com/file/d/1hU_pUYBPboJQDhDD-kWP8iilqnyUCmga/view?usp=drive_link |
+| `--llama_model_path` / `--ckpt_dir` | LLaMA base model weights | https://huggingface.co/nyanko7/LLaMA-7B/tree/main |
+| `--data_root` | Dataset JSON files (containing `vlm_molae_json/` directory with `eff_training.json`、`int_training.json`、`att_training.json`、`all_test.json`、`all_test_cap.json`） | https://drive.google.com/file/d/1xveTVORplEX87yIFBeRm0p9Ba7sz3Yjl/view?usp=drive_link |
+| `--video_folder` | CLIP-extracted preprocessed video features (pickle files) | https://drive.google.com/file/d/1hU_pUYBPboJQDhDD-kWP8iilqnyUCmga/view?usp=drive_link |
 
-下载后目录结构示例：
+Expected directory structure after downloading:
 
 ```
 data/
@@ -54,51 +53,50 @@ weights/
 └── ...
 ```
 
-## 微调
+## Fine-tuning
 
-使用 `scripts/finetune.sh` 进行微调：
+Run fine-tuning using `scripts/finetune.sh`:
 
 ```bash
 bash scripts/finetune.sh
 ```
 
-该脚本包含训练阶段，关键参数说明：
+Key arguments:
 
-| 参数 | 说明 |
+| Argument | Description |
 |------|------|
-| `--cms_type` | CMS 类型，可选 `eff`（effect）、`int`（intention）、`att`（attribute） |
-| `--llm_model` | 模型规模，如 `7B`、`13B` |
-| `--adapter_type` | Adapter 类型，如 `attn` |
-| `--bits` | 量化方式，如 `4bit`、`8bit`、`16bits` |
-| `--lr_qformer` | Q-Former 学习率 |
-| `--lr_lora` | LoRA 学习率 |
-| `--n_prompt` | 视觉特征 token 数量 |
+| `--cms_type` | CMS type, `eff` (effect),`int` (intention) or `att` (attribute) |
+| `--llm_model` | Model size, `7B` or `13B` |
+| `--adapter_type` | Adapter type, e.g., `attn` |
+| `--bits` | Quantization precision: `4bit`, `8bit`, or `16bits` |
+| `--lr_qformer` | Q-Former learning rate |
+| `--lr_lora` | low-rank expert learning rate |
 
-## 测试
+## Evaluation
 
-使用 `scripts/test.sh` 进行测试，包含两个评估脚本：
+Run evaluation using `scripts/test.sh`, which invokes two evaluation scripts:
 
 ```bash
 bash scripts/test.sh
 ```
 
-1. **`eval.py`** — 评估视频描述 + CMS 预测（生成 caption + effect/intention/attribute），计算 CIDEr、METEOR、ROUGE、BLEU 指标
-2. **`eval_cap2cms.py`** — 仅评估 CMS 预测（给定 caption，预测 effect/intention/attribute），计算相同指标
+1. **`eval.py`** — Evaluates video captioning + CMS prediction (generates caption + effect/intention/attribute) and computes CIDEr, METEOR, ROUGE, and BLEU metrics.
+2. **`eval_cap2cms.py`** — Evaluates CMS prediction only (given a caption, predicts effect/intention/attribute) and computes the same metrics.
 
-两个脚本均通过 `--cms_type` 参数指定评估的 CMS 类型：
+Both scripts accept  `--cms_type` to specify the target CMS dimension:
 
 ```bash
-# 评估 effect
+# Evaluate effect
 torchrun ... eval.py ... --cms_type eff
 torchrun ... eval_cap2cms.py ... --cms_type eff
 
-# 评估 intention
+# Evaluate intention
 torchrun ... eval.py ... --cms_type int
 torchrun ... eval_cap2cms.py ... --cms_type int
 
-# 评估 attribute
+# Evaluate attribute
 torchrun ... eval.py ... --cms_type att
 torchrun ... eval_cap2cms.py ... --cms_type att
 ```
 
-结果保存在 adapter 权重同目录下，如 `preds-epoch4_eff.json`、`preds-epoch4_capeff_noperiod.json`。
+Results are saved to the same directory as the adapter weights, e.g., `preds-epoch4_eff.json`, `preds-epoch4_capeff_noperiod.json`.
