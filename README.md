@@ -1,4 +1,3 @@
-# LaVIN-Video: Video Causal Reasoning via Multimodal Adapters
 
 ## Environment Setup
 
@@ -100,3 +99,46 @@ torchrun ... eval_cap2cms.py ... --cms_type att
 ```
 
 Results are saved to the same directory as the adapter weights, e.g., `preds-epoch4_eff.json`, `preds-epoch4_capeff_noperiod.json`.
+
+## Zero-shot and Few-shot Prompts
+
+Select the matching Attribute, Effect, or Intention option below. Neither setting uses task-specific fine-tuning.
+
+**Zero-shot — Qwen2.5-VL-7B and InternVL3.5-8B.** Use the corresponding `{rule}`:
+
+- **Attribute:** Infer one plausible personal trait or disposition of the main person. Return a single adjective or adjective phrase of 1-3 English words. Do not merely describe clothing or physical appearance.
+- **Effect:** Infer one plausible immediate consequence or next action of the main person. Return a single short phrase of 2-8 English words.
+- **Intention:** Infer the main person's likely goal or motivation. Return a single short phrase of 2-8 English words starting with "to".
+
+Completion (video + supplied caption):
+
+```text
+<video>
+Use the video and the supplied caption to answer the question. {rule} Output only that phrase, with no label, explanation, alternatives, bullet points, or introductory text.
+Context: {caption}. Question: [What is the attribute of the people? / What will be the effect? / What is the intention?] Response:
+```
+
+Generation (video only):
+
+```text
+<video>
+Use only the video. Write one factual video description of 8-20 English words about its main action. {rule} Output exactly one line in this format: <video description>. [Attribute / Effect / Intention]: <commonsense phrase>. Replace both placeholders with your answer. Do not add explanations, alternatives, bullet points, or introductory text.
+Question: Describe the video and predict [what is the attribute of the people / what will be the effect / what is the intention]. Response:
+```
+
+For InternVL, `<video>` is replaced by `Frame1: <image>` through `Frame16: <image>` on separate lines.
+
+**Few-shot — Qwen2.5-VL-7B, 16-shot.** Use the same question lines above, without the zero-shot instructions:
+
+```text
+Example 1:
+<video>
+{question line} {example answer}
+... [repeat through Example 16]
+
+<video>
+{question line}
+```
+
+Completion question lines include `Context: {caption}.`; answers are commonsense phrases. Generation answers use `{caption}. {Attribute/Effect/Intention}: {phrase}`. Each prompt contains 16 demonstration videos plus the query video, whose answer is left blank. Completion demonstrations come from the test pool, excluding the query video.
+
