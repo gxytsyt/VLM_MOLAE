@@ -140,5 +140,5 @@ Example 1:
 {question line}
 ```
 
-Completion question lines include `Context: {caption}.`; answers are commonsense phrases. Generation answers use `{caption}. {Attribute/Effect/Intention}: {phrase}`. Each prompt contains 16 demonstration videos plus the query video, whose answer is left blank. Completion demonstrations come from the test pool, excluding the query video.
+Completion question lines include `Context: {caption}.`; answers are commonsense phrases. Generation answers use `{caption}. {Attribute/Effect/Intention}: {phrase}`. Each prompt contains 16 demonstration videos plus the query video, whose answer is left blank. Completion demonstrations come from the training split.
 
